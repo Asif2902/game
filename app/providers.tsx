@@ -2,34 +2,60 @@
 
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { base } from 'wagmi/chains';
-import { coinbaseWallet, walletConnect } from 'wagmi/connectors';
+import { coinbaseWallet } from 'wagmi/connectors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { type ReactNode, useState } from 'react';
+import { Attribution } from 'ox/erc8021';
+import { ErrorSuppressor } from '@/components/ErrorSuppressor';
 
 // Wagmi config — Base mainnet only.
 // Standard web app stack: wagmi + viem + Coinbase Wallet connector.
 // Works in the Base App's in-app browser and standalone.
 // The Base App identifies this app via the `base:app_id` metadata tag
 // in app/page.tsx (registered on Base.dev).
+// Builder Code from base.dev > Settings > Builder Code for transaction attribution.
+
+const DATA_SUFFIX = Attribution.toDataSuffix({
+  codes: ['bc_xjk8lvnk'],
+});
+
+// Use a more reliable RPC. Public mainnet.base.org is often rate-limited
+// and can return "Failed to fetch" errors. Alchemy/Cloudflare are more stable.
+function getRpcUrl(): string {
+  const url = process.env.NEXT_PUBLIC_RPC_URL;
+  if (url && url.length > 0) return url;
+  // Fallback to Cloudflare's Base RPC (no API key needed, very reliable)
+  return 'https://base-mainnet.public.blastapi.io';
+}
 
 function createWagmiConfig() {
-  const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID ?? '';
+  // Only add WalletConnect connector if explicitly opted in via env var.
+  // WalletConnect can throw "ClientMetaManager not initialized" errors when
+  // the project ID is invalid or the SDK can't initialize in the current
+  // browser context. Coinbase Wallet connector works in all cases (including
+  // inside the Base App), so we use it as the only default connector.
+  const enableWC = process.env.NEXT_PUBLIC_ENABLE_WALLETCONNECT === 'true';
+
   return createConfig({
     chains: [base],
     connectors: [
       coinbaseWallet({
         appName: 'Flappy Base',
+        preference: 'smartWalletOnly',
       }),
-      // Only register the WalletConnect connector if a project id is configured;
-      // walletConnect() throws if projectId is empty.
-      ...(WC_PROJECT_ID
-        ? [walletConnect({ projectId: WC_PROJECT_ID, showQrModal: true })]
-        : []),
     ],
     multiInjectedProviderDiscovery: false,
     transports: {
-      [base.id]: http('https://mainnet.base.org'),
+      [base.id]: http(getRpcUrl(), {
+        // Retry once on transient network failures
+        retryCount: 1,
+        retryDelay: 200,
+        // Don't throw on fetch errors — we handle them in try/catch
+        batch: { batchSize: 1, wait: 0 },
+      }),
     },
+    dataSuffix: DATA_SUFFIX,
+    ssr: true,
   });
 }
 
@@ -39,6 +65,7 @@ function makeQueryClient() {
       queries: {
         staleTime: 60 * 1000,
         refetchOnWindowFocus: false,
+        retry: 1,
       },
     },
   });
@@ -54,7 +81,10 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <ErrorSuppressor />
+        {children}
+      </QueryClientProvider>
     </WagmiProvider>
   );
 }

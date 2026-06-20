@@ -48,7 +48,7 @@ export function GameOver({ score, submitted, onSubmitted, onRestart }: GameOverP
 
     setStatus({ kind: 'sending' });
     try {
-      const txHash = await submitScoreContract(username.trim(), score, fee);
+      const txHash = await submitScoreContract(username.trim(), score, fee, address);
 
       setStatus({ kind: 'success', txHash });
       onSubmitted();
@@ -62,16 +62,16 @@ export function GameOver({ score, submitted, onSubmitted, onRestart }: GameOverP
   };
 
   return (
-    <div className="w-full max-w-[340px] rounded-xl bg-base-bg/90 p-5 text-center ring-1 ring-white/10">
-      <p className="text-sm uppercase tracking-widest opacity-70">Game Over</p>
-      <p className="mt-1 text-5xl font-bold text-base-blue">{score}</p>
-      <p className="text-xs opacity-60">pipes cleared</p>
+    <div className="w-full max-w-[340px] rounded-xl bg-base-bg/95 p-5 text-center ring-1 ring-base-accent/30 backdrop-blur-sm">
+      <p className="text-sm uppercase tracking-widest text-base-foreground-dim">Game Over</p>
+      <p className="mt-1 text-5xl font-bold text-base-accent">{score}</p>
+      <p className="text-xs text-base-foreground-dim">pipes cleared</p>
 
       {!submitted && status.kind !== 'success' && (
         <div className="mt-4 space-y-3 text-left">
           {isConnected ? (
-            <p className="text-center text-xs opacity-70">
-              Connected: <span className="font-mono">{shortAddr(address)}</span>
+            <p className="text-center text-xs text-base-foreground-dim">
+              Connected: <span className="font-mono text-base-accent">{shortAddr(address)}</span>
             </p>
           ) : (
             <div className="flex justify-center">
@@ -82,7 +82,7 @@ export function GameOver({ score, submitted, onSubmitted, onRestart }: GameOverP
           )}
 
           <label className="block">
-            <span className="mb-1 block text-xs opacity-70">Username</span>
+            <span className="mb-1 block text-xs text-base-foreground-dim">Username</span>
             <input
               type="text"
               value={username}
@@ -92,7 +92,7 @@ export function GameOver({ score, submitted, onSubmitted, onRestart }: GameOverP
                 if (status.kind === 'error') setStatus({ kind: 'idle' });
               }}
               placeholder="1–20 alphanumeric"
-              className="w-full rounded-lg bg-white/5 px-3 py-2 text-sm outline-none ring-1 ring-white/15 focus:ring-base-blue"
+              className="w-full rounded-lg bg-base-bg/50 px-3 py-2 text-sm outline-none ring-1 ring-base-accent/30 focus:ring-2 focus:ring-base-accent bg-base-bg text-base-foreground placeholder-base-foreground-dim"
             />
             {trimmed.length > 0 && !usernameValid && (
               <span className="mt-1 block text-xs text-red-400">
@@ -105,9 +105,9 @@ export function GameOver({ score, submitted, onSubmitted, onRestart }: GameOverP
             type="button"
             onClick={handleSubmit}
             disabled={!isConnected || !usernameValid || status.kind === 'sending'}
-            className="w-full rounded-lg bg-base-blue px-4 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg bg-base-accent px-4 py-3 text-sm font-bold text-base-bg disabled:cursor-not-allowed disabled:opacity-50 hover:opacity-90 transition-opacity"
           >
-            {status.kind === 'sending' ? 'Waiting for wallet…' : `Submit Score (${fee} ETH)`}
+            {status.kind === 'sending' ? 'Waiting for wallet…' : 'Submit Score'}
           </button>
 
           {status.kind === 'error' && (
@@ -123,7 +123,7 @@ export function GameOver({ score, submitted, onSubmitted, onRestart }: GameOverP
             href={basescan(status.txHash)}
             target="_blank"
             rel="noreferrer"
-            className="inline-block text-base-blue underline underline-offset-2"
+            className="inline-block text-base-accent underline underline-offset-2 hover:opacity-80 transition-opacity"
           >
             View on Basescan ↗
           </a>
@@ -133,7 +133,7 @@ export function GameOver({ score, submitted, onSubmitted, onRestart }: GameOverP
       <button
         type="button"
         onClick={onRestart}
-        className="mt-4 w-full rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold hover:bg-white/15"
+        className="mt-4 w-full rounded-lg bg-base-secondary px-4 py-2 text-sm font-semibold text-base-foreground hover:bg-base-secondary/80 transition-colors ring-1 ring-base-accent/20"
       >
         Play Again
       </button>

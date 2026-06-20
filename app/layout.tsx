@@ -1,17 +1,18 @@
 import type { Metadata, Viewport } from 'next';
-import { Space_Grotesk } from 'next/font/google';
+import { Lilita_One } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 
-const spaceGrotesk = Space_Grotesk({
+const lilitaOne = Lilita_One({
   subsets: ['latin'],
-  variable: '--font-space-grotesk',
+  variable: '--font-lilita-one',
   display: 'swap',
+  weight: '400',
 });
 
 export const metadata: Metadata = {
   title: 'Flappy Base',
-  description: 'A Flappy Bird game on Base. Submit your high score for 0.0001 ETH.',
+  description: 'A Flappy Bird game on Base. Play, submit your high score on-chain, and compete on the leaderboard.',
   applicationName: 'Flappy Base',
 };
 
@@ -20,7 +21,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#0052FF',
+  themeColor: '#6BBFED',
 };
 
 export default function RootLayout({
@@ -29,8 +30,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={spaceGrotesk.variable}>
-      <body className="bg-base-bg text-base-accent font-sans min-h-screen antialiased">
+    <html lang="en" className={lilitaOne.variable}>
+      <body className="font-sans min-h-screen antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>

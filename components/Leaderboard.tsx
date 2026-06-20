@@ -47,20 +47,20 @@ export function Leaderboard() {
   }, []);
 
   return (
-    <div className="rounded-xl bg-white/5 p-4 ring-1 ring-white/10">
+    <div className="rounded-xl bg-base-bg/50 p-4 ring-1 ring-base-accent/20 backdrop-blur-sm">
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest opacity-70">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-base-foreground-dim">
           Leaderboard
         </h2>
-        <span className="text-xs opacity-50">Top 50</span>
+        <span className="text-xs text-base-foreground-dim">Top 50</span>
       </div>
 
       {loading ? (
-        <p className="py-4 text-center text-xs opacity-50">Loading…</p>
+        <p className="py-4 text-center text-xs text-base-foreground-dim">Loading…</p>
       ) : error ? (
         <p className="py-4 text-center text-xs text-red-400">{error}</p>
       ) : rows.length === 0 ? (
-        <p className="py-4 text-center text-xs opacity-50">
+        <p className="py-4 text-center text-xs text-base-foreground-dim">
           No scores yet — be the first to submit!
         </p>
       ) : (
@@ -68,16 +68,16 @@ export function Leaderboard() {
           {rows.map((row, i) => (
             <li
               key={`${row.player}-${row.timestamp}`}
-              className="flex items-center justify-between gap-2 rounded px-2 py-1 odd:bg-white/5"
+              className="flex items-center justify-between gap-2 rounded-lg px-3 py-2 odd:bg-base-secondary/50 even:bg-transparent"
             >
-              <span className="flex w-6 shrink-0 font-mono text-xs opacity-60">
+              <span className="flex w-6 shrink-0 font-mono text-xs text-base-foreground-dim">
                 {i + 1}
               </span>
-              <span className="flex-1 truncate font-semibold">{row.username}</span>
-              <span className="shrink-0 font-mono text-xs opacity-50">
+              <span className="flex-1 truncate font-semibold text-base-foreground">{row.username}</span>
+              <span className="shrink-0 font-mono text-xs text-base-foreground-dim">
                 {shortAddr(row.player)}
               </span>
-              <span className="w-10 shrink-0 text-right font-bold text-base-blue">
+              <span className="w-10 shrink-0 text-right font-bold text-base-accent">
                 {row.score.toString()}
               </span>
             </li>

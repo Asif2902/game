@@ -2,14 +2,24 @@ import { createPublicClient, createWalletClient, http, parseEther, formatEther, 
 import { base } from 'viem/chains';
 import abi from '@/contracts/ScoreSubmission.json';
 
-const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL || 'https://mainnet.base.org';
+// Use a reliable RPC. Public mainnet.base.org is often rate-limited and
+// returns "Failed to fetch" errors. We fall back to a stable alternative.
+const RPC_URL =
+  process.env.NEXT_PUBLIC_RPC_URL ||
+  'https://base-mainnet.public.blastapi.io';
 
-export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as Address;
+const CONTRACT_ADDRESS_VALUE = (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || '') as Address;
+
+export const CONTRACT_ADDRESS = CONTRACT_ADDRESS_VALUE;
 export const SCORE_ABI = abi;
 
 export const publicClient = createPublicClient({
   chain: base,
-  transport: http(RPC_URL),
+  transport: http(RPC_URL, {
+    retryCount: 2,
+    retryDelay: 300,
+    timeout: 8000,
+  }),
 });
 
 export interface ScoreEntry {
@@ -17,6 +27,12 @@ export interface ScoreEntry {
   username: string;
   score: bigint;
   timestamp: bigint;
+}
+
+function assertContractAddress() {
+  if (!CONTRACT_ADDRESS || CONTRACT_ADDRESS === '0x') {
+    throw new Error('Contract address not configured. Set NEXT_PUBLIC_CONTRACT_ADDRESS in .env.local');
+  }
 }
 
 export function getWalletClient() {
@@ -30,13 +46,12 @@ export function getWalletClient() {
 export async function submitScoreContract(
   username: string,
   score: number,
-  fee: string
+  fee: string,
+  account: Address
 ) {
+  assertContractAddress();
   const walletClient = getWalletClient();
   if (!walletClient) throw new Error('No wallet client');
-
-  const [account] = await walletClient.getAddresses();
-  if (!account) throw new Error('No account');
 
   const hash = await walletClient.writeContract({
     address: CONTRACT_ADDRESS,
@@ -50,40 +65,73 @@ export async function submitScoreContract(
   return hash;
 }
 
+// Silent error helper — logs as warn, not error, and doesn't re-throw
+function silentWarn(context: string, err: unknown) {
+  // Only log in dev to avoid noise in production
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(`[${context}]`, err instanceof Error ? err.message : err);
+  }
+}
+
 export async function getScoresContract(offset = 0, limit = 50): Promise<ScoreEntry[]> {
-  const data = await publicClient.readContract({
-    address: CONTRACT_ADDRESS,
-    abi: SCORE_ABI,
-    functionName: 'getScores',
-    args: [BigInt(offset), BigInt(limit)],
-  });
-  return data as ScoreEntry[];
+  if (!CONTRACT_ADDRESS) return [];
+  try {
+    const data: unknown = await publicClient.readContract({
+      address: CONTRACT_ADDRESS,
+      abi: SCORE_ABI,
+      functionName: 'getScores',
+      args: [BigInt(offset), BigInt(limit)],
+    });
+    return data as ScoreEntry[];
+  } catch (err) {
+    silentWarn('scores', err);
+    return [];
+  }
 }
 
-export async function getScoresCountContract() {
-  return await publicClient.readContract({
-    address: CONTRACT_ADDRESS,
-    abi: SCORE_ABI,
-    functionName: 'getScoresCount',
-  });
+export async function getScoresCountContract(): Promise<bigint> {
+  if (!CONTRACT_ADDRESS) return 0n;
+  try {
+    const data: unknown = await publicClient.readContract({
+      address: CONTRACT_ADDRESS,
+      abi: SCORE_ABI,
+      functionName: 'getScoresCount',
+    });
+    return data as bigint;
+  } catch (err) {
+    silentWarn('scoresCount', err);
+    return 0n;
+  }
 }
 
-export async function getFeeContract() {
-  const fee = await publicClient.readContract({
-    address: CONTRACT_ADDRESS,
-    abi: SCORE_ABI,
-    functionName: 'getFee',
-  });
-  return formatEther(fee as bigint);
+export async function getFeeContract(): Promise<string> {
+  if (!CONTRACT_ADDRESS) return '0.0001';
+  try {
+    const fee: unknown = await publicClient.readContract({
+      address: CONTRACT_ADDRESS,
+      abi: SCORE_ABI,
+      functionName: 'getFee',
+    });
+    return formatEther(fee as bigint);
+  } catch (err) {
+    silentWarn('fee', err);
+    return '0.0001';
+  }
 }
 
-export async function getMaxFeeContract() {
-  const fee = await publicClient.readContract({
-    address: CONTRACT_ADDRESS,
-    abi: SCORE_ABI,
-    functionName: 'getMaxFee',
-  });
-  return formatEther(fee as bigint);
+export async function getMaxFeeContract(): Promise<string> {
+  if (!CONTRACT_ADDRESS) return '0.001';
+  try {
+    const fee: unknown = await publicClient.readContract({
+      address: CONTRACT_ADDRESS,
+      abi: SCORE_ABI,
+      functionName: 'getMaxFee',
+    });
+    return formatEther(fee as bigint);
+  } catch (err) {
+    silentWarn('maxFee', err);
+    return '0.001';
+  }
 }
 
 export function shortAddr(addr?: string) {

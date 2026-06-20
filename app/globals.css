@@ -3,23 +3,40 @@
 @tailwind utilities;
 
 /*
- * OnchainKit theme tokens. We do NOT `@import '@coinbase/onchainkit/styles.css'`
- * here because that bundled stylesheet ships its own `@layer base{...}` blocks,
- * which conflict with Tailwind v3's `@tailwind base` directive and break the
- * PostCSS compilation ("@layer base is used but no matching @tailwind base
- * directive is present"). OnchainKit React components work without the global
- * stylesheet; these CSS variables are enough to theme them.
+ * Flappy Base — Classic Flappy Bird blue sky theme.
+ * See exact color palette in the design spec.
  */
 :root {
-  --ok-color-accent: #0052ff;
+  --game-sky-top: #6BBFED;
+  --game-sky-bottom: #A8D8F0;
+  --game-cloud: #FFFFFF;
+  --game-ground: #1A3A6E;
+  --game-ground-top: #2B4F8A;
+  --game-pipe-body: #1E5CB3;
+  --game-pipe-highlight: #4A8FE0;
+  --game-pipe-cap: #1A4F9E;
+  --game-bird-body: #F0E0B0;
+  --game-bird-wing: #4A80C8;
+  --game-bird-beak: #FF8000;
+  --game-bird-eye: #FFFFFF;
+  --game-bird-pupil: #1A1A2E;
+  --game-speed-line: rgba(255, 255, 255, 0.6);
+  --game-title-fill: #FFFFFF;
+  --game-title-stroke: #1A3A8F;
+  --game-title-shadow: #0A2050;
+  --game-panel-bg: rgba(200, 230, 255, 0.85);
+  --game-button: #2B6FD4;
+  --game-bg: #0A1628;
+
+  --ok-color-accent: #2B6FD4;
   --ok-color-accent-foreground: #ffffff;
-  --ok-color-background: #0a0a14;
+  --ok-color-background: #0A1628;
   --ok-color-foreground: #ffffff;
-  --ok-color-border: rgba(255, 255, 255, 0.1);
-  --ok-color-secondary: rgba(255, 255, 255, 0.06);
+  --ok-color-border: rgba(255, 255, 255, 0.15);
+  --ok-color-secondary: rgba(255, 255, 255, 0.08);
   --ok-color-secondary-foreground: #ffffff;
-  --ok-border-radius: 0.5rem;
-  --ok-font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  --ok-border-radius: 0.75rem;
+  --ok-font-family: var(--font-lilita-one), system-ui, sans-serif;
 }
 
 html,
@@ -29,6 +46,9 @@ body {
   /* Prevent pull-to-refresh / rubber-band interfering with tap-to-flap. */
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
+  background: var(--game-bg);
+  color: white;
+  font-family: var(--font-lilita-one), system-ui, sans-serif;
 }
 
 /* The game canvas should not trigger text selection on rapid tapping. */
@@ -37,4 +57,38 @@ canvas {
   user-select: none;
   -webkit-user-select: none;
   display: block;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--game-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--game-sky-top);
+  border-radius: 3px;
+}
+
+::selection {
+  background: var(--game-sky-top);
+  color: var(--game-bg);
+}
+
+/* Style the OnchainKit ConnectWallet button to match the blue theme */
+.wallet-connect-wrapper button {
+  background: var(--game-button) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  padding: 0.4rem 0.75rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  font-family: var(--font-lilita-one), system-ui, sans-serif !important;
+  cursor: pointer !important;
+  transition: opacity 0.15s !important;
+}
+.wallet-connect-wrapper button:hover {
+  opacity: 0.9;
 }

@@ -1,0 +1,20 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "Flappy Base",
+    "iconUrl": "https://game-green-xi.vercel.app/icon.png",
+    "homeUrl": "https://game-green-xi.vercel.app",
+    "splashImageUrl": "https://game-green-xi.vercel.app/splash.png",
+    "splashBackgroundColor": "#0052FF",
+    "heroImageUrl": "https://game-green-xi.vercel.app/hero.png",
+    "tagline": "Flappy Bird on Base",
+    "description": "Play Flappy Bird, submit your high score on-chain, and compete on the leaderboard.",
+    "primaryCategory": "games",
+    "tags": ["game", "flappy-bird", "base", "leaderboard"]
+  }
+}
