@@ -1,8 +1,8 @@
 {
   "accountAssociation": {
-    "header": "",
-    "payload": "",
-    "signature": ""
+    "header": "eyJmaWQiOjEwNjM2MjgsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHhlQmJDZjIzRTQ4NjI0MmI5N0RhNzg5NWQ3Y2M1MDRiOTg2Y0Q2OEFCIn0",
+    "payload": "eyJkb21haW4iOiJnYW1lLWdyZWVuLXhpLnZlcmNlbC5hcHAifQ",
+    "signature": "X92xQHMbOvq2nTg2rvrki3/6hRzXwtoz0ZQhVXkIRX1ZX2tQawHBC6LzDRfhL4gdjAoCrBu7abila+0krYDUPhs="
   },
   "miniapp": {
     "version": "1",
@@ -10,7 +10,7 @@
     "iconUrl": "https://game-green-xi.vercel.app/icon.png",
     "homeUrl": "https://game-green-xi.vercel.app",
     "splashImageUrl": "https://game-green-xi.vercel.app/splash.png",
-    "splashBackgroundColor": "#0052FF",
+    "splashBackgroundColor": "#6BBFED",
     "heroImageUrl": "https://game-green-xi.vercel.app/hero.png",
     "tagline": "Flappy Bird on Base",
     "description": "Play Flappy Bird, submit your high score on-chain, and compete on the leaderboard.",
