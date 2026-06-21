@@ -3,19 +3,34 @@
 import { useEffect } from 'react';
 
 /**
- * Suppresses known noisy/benign errors from third-party libraries
- * (WalletConnect, viem RPC, OnchainKit) that don't affect functionality.
+ * Initializes the Farcaster MiniApp SDK once the app is ready to display.
  *
- * - "ClientMetaManager not initialized" — WalletConnect v2 SDK emits this
- *   when the SDK hasn't been fully initialized yet (e.g., before the user
- *   connects a wallet). It's benign.
+ * Per https://miniapps.farcaster.xyz/docs/getting-started#making-your-app-display:
+ *   "After your app loads, you must call sdk.actions.ready() to hide the
+ *    splash screen and display your content. If you don't call ready(),
+ *    users will see an infinite loading screen."
  *
- * - "Failed to fetch" — viem/OnchainKit RPC calls can fail with CORS or
- *   transient network issues. Our code handles these gracefully with
- *   try/catch and fallback values.
+ * Safe to call when not running inside a Farcaster/Base App — the dynamic
+ * import will fail silently and the splash will simply not be dismissed
+ * (which is fine outside of the mini-app context).
+ *
+ * Also suppresses known noisy/benign errors from third-party libraries.
  */
-export function ErrorSuppressor() {
+export function AppInitializer() {
   useEffect(() => {
+    // ---- Call sdk.actions.ready() to dismiss splash ----
+    (async () => {
+      try {
+        const mod = await import('@farcaster/miniapp-sdk');
+        if (mod?.sdk?.actions?.ready) {
+          await mod.sdk.actions.ready();
+        }
+      } catch {
+        // Not running inside a Farcaster/Base client — that's fine.
+      }
+    })();
+
+    // ---- Suppress known noisy/benign errors ----
     const origError = console.error;
     const origWarn = console.warn;
 
@@ -40,7 +55,6 @@ export function ErrorSuppressor() {
       origWarn.apply(console, args);
     };
 
-    // Suppress unhandled promise rejections from these sources
     const onUnhandledRejection = (event: PromiseRejectionEvent) => {
       const reason = event.reason;
       const msg = reason instanceof Error ? reason.message : String(reason);

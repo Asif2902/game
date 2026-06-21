@@ -6,7 +6,7 @@ import { coinbaseWallet } from 'wagmi/connectors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { type ReactNode, useState } from 'react';
 import { Attribution } from 'ox/erc8021';
-import { ErrorSuppressor } from '@/components/ErrorSuppressor';
+import { AppInitializer } from '@/components/AppInitializer';
 
 // Wagmi config — Base mainnet only.
 // Standard web app stack: wagmi + viem + Coinbase Wallet connector.
@@ -82,7 +82,7 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <ErrorSuppressor />
+        <AppInitializer />
         {children}
       </QueryClientProvider>
     </WagmiProvider>
